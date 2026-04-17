@@ -5,15 +5,9 @@ class ExchangeConnector:
     def __init__(self):
         if config.SIMULATION_MODE:
             if config.EXCHANGE_NAME == "okx":
-                self.exchange = ccxt.okx({
-                    'enableRateLimit': True,
-                })
+                self.exchange = ccxt.okx({'enableRateLimit': True})
             elif config.EXCHANGE_NAME == "binance":
-                self.exchange = ccxt.binance({
-                    'enableRateLimit': True,
-                })
-            else:
-                raise ValueError("Exchange desconocido")
+                self.exchange = ccxt.binance({'enableRateLimit': True})
         else:
             if config.EXCHANGE_NAME == "okx":
                 self.exchange = ccxt.okx({
