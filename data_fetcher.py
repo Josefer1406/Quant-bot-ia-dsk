@@ -10,21 +10,35 @@ class DataFetcher:
         self.cache = {}
     
     def _init_exchange(self):
-        if config.EXCHANGE_NAME == "okx":
-            return ccxt.okx({
-                'apiKey': config.OKX_API_KEY,
-                'secret': config.OKX_SECRET_KEY,
-                'password': config.OKX_PASSPHRASE,
-                'enableRateLimit': True,
-            })
-        elif config.EXCHANGE_NAME == "binance":
-            return ccxt.binance({
-                'apiKey': config.BINANCE_API_KEY,
-                'secret': config.BINANCE_SECRET_KEY,
-                'enableRateLimit': True,
-            })
+        # En modo simulación, usar conexión pública sin API keys
+        if config.SIMULATION_MODE:
+            if config.EXCHANGE_NAME == "okx":
+                return ccxt.okx({
+                    'enableRateLimit': True,
+                })
+            elif config.EXCHANGE_NAME == "binance":
+                return ccxt.binance({
+                    'enableRateLimit': True,
+                })
+            else:
+                raise ValueError("Exchange no soportado")
         else:
-            raise ValueError("Exchange no soportado")
+            # Modo real: usar API keys
+            if config.EXCHANGE_NAME == "okx":
+                return ccxt.okx({
+                    'apiKey': config.OKX_API_KEY,
+                    'secret': config.OKX_SECRET_KEY,
+                    'password': config.OKX_PASSPHRASE,
+                    'enableRateLimit': True,
+                })
+            elif config.EXCHANGE_NAME == "binance":
+                return ccxt.binance({
+                    'apiKey': config.BINANCE_API_KEY,
+                    'secret': config.BINANCE_SECRET_KEY,
+                    'enableRateLimit': True,
+                })
+            else:
+                raise ValueError("Exchange no soportado")
     
     @lru_cache(maxsize=32)
     def fetch_ohlcv(self, symbol, timeframe=config.TIMEFRAME, limit=config.HISTORY_LIMIT):
@@ -40,7 +54,8 @@ class DataFetcher:
     def fetch_ticker(self, symbol):
         try:
             return self.exchange.fetch_ticker(symbol)
-        except:
+        except Exception as e:
+            print(f"Error fetching ticker {symbol}: {e}")
             return None
     
     def get_volume_usd(self, symbol):
