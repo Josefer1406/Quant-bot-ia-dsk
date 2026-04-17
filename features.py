@@ -3,17 +3,12 @@ import numpy as np
 import config
 
 def add_technical_features(df):
-    """
-    Añade indicadores técnicos de forma segura.
-    Si falla, devuelve el DataFrame original sin features (no causa error).
-    """
     if df is None or df.empty or len(df) < 30:
         return df.copy() if df is not None else pd.DataFrame()
     
     df = df.copy()
     try:
-        # Cálculos manuales para evitar dependencias frágiles
-        # Medias móviles simples (en lugar de EMA para evitar problemas)
+        # Medias móviles simples
         for period in [7, 14, 21, 50, 100, 200]:
             if len(df) >= period:
                 df[f'sma_{period}'] = df['close'].rolling(window=period).mean()
@@ -51,7 +46,6 @@ def add_technical_features(df):
         # Rango de precio
         df['high_low_ratio'] = (df['high'] - df['low']) / df['close']
         
-        # Eliminar filas con NaN
         df = df.dropna()
         return df
     except Exception as e:
@@ -59,11 +53,6 @@ def add_technical_features(df):
         return df
 
 def get_feature_columns():
-    """
-    Devuelve lista de nombres de columnas que son features.
-    Crea un DataFrame sintético suficientemente largo para calcular indicadores.
-    """
-    # Crear 300 filas de datos sintéticos
     n = 300
     np.random.seed(42)
     close = 100 + np.cumsum(np.random.randn(n) * 0.5)
