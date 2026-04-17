@@ -13,9 +13,10 @@ TIMEFRAME = "5m"
 CYCLE_SECONDS = 10
 HISTORY_LIMIT = 200
 
+# UNIVERSO DE ACTIVOS (solo pares existentes en OKX)
 UNIVERSE = [
     "BTC/USDT", "ETH/USDT", "SOL/USDT", "ADA/USDT", "DOGE/USDT",
-    "LINK/USDT", "DOT/USDT", "AAVE/USDT", "UNI/USDT", "MATIC/USDT"
+    "LINK/USDT", "DOT/USDT", "AAVE/USDT", "UNI/USDT", "POL/USDT"
 ]
 MIN_AVG_VOLUME_USD = 10_000_000
 
@@ -48,7 +49,7 @@ CORRELATION_GROUPS = {
     "L4": ["LINK/USDT"],
     "L5": ["DOT/USDT"],
     "L6": ["AAVE/USDT", "UNI/USDT"],
-    "L7": ["MATIC/USDT"],
+    "L7": ["POL/USDT"],
 }
 
 MODEL_PATH = "xgboost_model.pkl"
