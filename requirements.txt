@@ -1,6 +1,9 @@
 flask
 pandas
 numpy
-ccxt
-streamlit
+scikit-learn
+xgboost
+joblib
 requests
+streamlit
+plotly
