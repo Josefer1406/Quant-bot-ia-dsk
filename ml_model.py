@@ -15,7 +15,7 @@ class MLModel:
         self.feature_cols = get_feature_columns()
         self.is_trained = False
         if not self.feature_cols:
-            print("⚠️ No se pudieron obtener columnas de features. ML desactivado.")
+            print("⚠️ ML desactivado por falta de features")
         else:
             self.load()
     
@@ -23,6 +23,7 @@ class MLModel:
         df = add_technical_features(df)
         if df is None or df.empty:
             return None, None
+        # Asegurar que todas las columnas existan
         missing = [c for c in self.feature_cols if c not in df.columns]
         if missing:
             return None, None
@@ -34,37 +35,33 @@ class MLModel:
         y = df['target'].values
         return X, y
     
-    def train(self, historical_trades_dataframes):
+    def train(self, historical_dfs):
         if not self.feature_cols:
-            print("⚠️ ML desactivado por falta de features")
             return
-        all_X = []
-        all_y = []
-        for df in historical_trades_dataframes:
+        all_X, all_y = [], []
+        for df in historical_dfs:
             X, y = self.prepare_data(df)
             if X is not None:
                 all_X.append(X)
                 all_y.append(y)
         if not all_X:
-            print("⚠️ No hay datos suficientes para entrenar ML")
             return
         X = np.vstack(all_X)
         y = np.hstack(all_y)
         if len(X) < 100:
-            print("⚠️ Pocos datos para entrenar ML (mínimo 100 filas)")
             return
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         self.scaler.fit(X_train)
         X_train_scaled = self.scaler.transform(X_train)
-        self.model = xgb.XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, random_state=42, eval_metric='logloss')
+        self.model = xgb.XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42)
         self.model.fit(X_train_scaled, y_train)
         self.is_trained = True
         self.save()
         acc = self.model.score(self.scaler.transform(X_test), y_test)
-        print(f"🧠 Modelo XGBoost entrenado. Accuracy test: {acc:.2f}")
+        print(f"🧠 Modelo entrenado. Accuracy: {acc:.2f}")
     
     def predict_probability(self, df):
-        if not self.is_trained or self.model is None or not self.feature_cols:
+        if not self.is_trained or self.model is None:
             return None
         df_feat = add_technical_features(df.tail(100))
         if df_feat is None or df_feat.empty:
@@ -72,8 +69,7 @@ class MLModel:
         missing = [c for c in self.feature_cols if c not in df_feat.columns]
         if missing:
             return None
-        last_row = df_feat.iloc[-1:]
-        X = last_row[self.feature_cols].values
+        X = df_feat[self.feature_cols].iloc[-1:].values
         X_scaled = self.scaler.transform(X)
         prob = self.model.predict_proba(X_scaled)[0][1]
         return float(prob)
@@ -88,6 +84,6 @@ class MLModel:
             self.model = joblib.load(config.MODEL_PATH)
             self.scaler = joblib.load(config.SCALER_PATH)
             self.is_trained = True
-            print("📀 Modelo XGBoost cargado desde disco")
+            print("📀 Modelo cargado")
 
 ml_model = MLModel()
