@@ -14,11 +14,18 @@ class MLModel:
         self.scaler = StandardScaler()
         self.feature_cols = get_feature_columns()
         self.is_trained = False
-        self.load()
+        if not self.feature_cols:
+            print("⚠️ No se pudieron obtener columnas de features. ML desactivado.")
+        else:
+            self.load()
     
     def prepare_data(self, df):
         df = add_technical_features(df)
         if df is None or df.empty:
+            return None, None
+        # Asegurar que todas las columnas de features existen
+        missing = [c for c in self.feature_cols if c not in df.columns]
+        if missing:
             return None, None
         df['target'] = (df['close'].shift(-1) > df['close']).astype(int)
         df = df.dropna()
@@ -29,6 +36,9 @@ class MLModel:
         return X, y
     
     def train(self, historical_trades_dataframes):
+        if not self.feature_cols:
+            print("⚠️ ML desactivado por falta de features")
+            return
         all_X = []
         all_y = []
         for df in historical_trades_dataframes:
@@ -41,6 +51,9 @@ class MLModel:
             return
         X = np.vstack(all_X)
         y = np.hstack(all_y)
+        if len(X) < 100:
+            print("⚠️ Pocos datos para entrenar ML")
+            return
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         self.scaler.fit(X_train)
         X_train_scaled = self.scaler.transform(X_train)
@@ -52,10 +65,14 @@ class MLModel:
         print(f"🧠 Modelo XGBoost entrenado. Accuracy test: {acc:.2f}")
     
     def predict_probability(self, df):
-        if not self.is_trained or self.model is None:
+        if not self.is_trained or self.model is None or not self.feature_cols:
             return None
         df_feat = add_technical_features(df.tail(100))
         if df_feat is None or df_feat.empty:
+            return None
+        # Verificar existencia de columnas
+        missing = [c for c in self.feature_cols if c not in df_feat.columns]
+        if missing:
             return None
         last_row = df_feat.iloc[-1:]
         X = last_row[self.feature_cols].values
