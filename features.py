@@ -5,7 +5,7 @@ import config
 
 def add_technical_features(df):
     """Añade indicadores técnicos a un DataFrame OHLCV"""
-    if df.empty:
+    if df is None or df.empty or len(df) < 50:
         return df
     
     df = df.copy()
@@ -31,8 +31,11 @@ def add_technical_features(df):
     df['bb_width'] = (df['bb_high'] - df['bb_low']) / df['close']
     df['bb_position'] = (df['close'] - df['bb_low']) / (df['bb_high'] - df['bb_low'] + 1e-9)
     
-    # ATR (volatilidad)
-    df['atr'] = ta.volatility.average_true_range(df['high'], df['low'], df['close'], window=config.DEFAULT_ATR_PERIOD)
+    # ATR (volatilidad) - solo si hay suficientes datos
+    if len(df) >= config.DEFAULT_ATR_PERIOD + 1:
+        df['atr'] = ta.volatility.average_true_range(df['high'], df['low'], df['close'], window=config.DEFAULT_ATR_PERIOD)
+    else:
+        df['atr'] = df['close'].pct_change().rolling(config.DEFAULT_ATR_PERIOD).std()
     
     # Volumen
     df['volume_sma'] = ta.trend.sma_indicator(df['volume'], window=20)
@@ -53,10 +56,12 @@ def add_technical_features(df):
     
     # Precio relativo a medias
     for period in [21, 50, 200]:
-        df[f'price_vs_ema_{period}'] = (df['close'] - df[f'ema_{period}']) / df[f'ema_{period}']
+        if f'ema_{period}' in df.columns:
+            df[f'price_vs_ema_{period}'] = (df['close'] - df[f'ema_{period}']) / df[f'ema_{period}']
     
     # Pendiente de EMA21
-    df['ema_slope_21'] = df['ema_21'].diff(5) / df['ema_21'].shift(5)
+    if 'ema_21' in df.columns:
+        df['ema_slope_21'] = df['ema_21'].diff(5) / df['ema_21'].shift(5)
     
     # Volatilidad histórica
     df['volatility_20'] = df['returns_1'].rolling(20).std()
@@ -75,15 +80,22 @@ def add_technical_features(df):
 def get_feature_columns():
     """
     Devuelve la lista de nombres de columnas que son features (excluyendo OHLCV).
-    Crea un DataFrame de ejemplo con datos ficticios para obtener los nombres.
+    Crea un DataFrame de ejemplo con suficientes filas para calcular indicadores.
     """
-    # Crear un DataFrame de ejemplo con datos mínimos
+    # Crear un DataFrame con 200 filas de datos sintéticos (precio que fluctúa)
+    np.random.seed(42)
+    n = 200
+    close = 100 + np.cumsum(np.random.randn(n) * 0.5)
+    high = close + np.abs(np.random.randn(n) * 0.3)
+    low = close - np.abs(np.random.randn(n) * 0.3)
+    volume = 1000 + np.random.randint(0, 500, n)
+    
     sample_data = {
-        'open': [100, 101, 102, 101, 100],
-        'high': [101, 102, 103, 102, 101],
-        'low': [99, 100, 101, 100, 99],
-        'close': [100, 101, 102, 101, 100],
-        'volume': [1000, 1100, 1200, 1100, 1000]
+        'open': close + np.random.randn(n) * 0.2,
+        'high': high,
+        'low': low,
+        'close': close,
+        'volume': volume
     }
     dummy = pd.DataFrame(sample_data)
     
