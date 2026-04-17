@@ -7,18 +7,15 @@ import config
 
 def generate_signal(symbol, df):
     if df is None or len(df) < 100:
-        print(f"   ⚠️ {symbol}: DataFrame insuficiente ({len(df) if df is not None else 0})")
         return None, 0.0, 0.0
     
     df_feat = add_technical_features(df)
     if df_feat is None or df_feat.empty or len(df_feat) < 2:
-        print(f"   ⚠️ {symbol}: features vacías")
         return None, 0.0, 0.0
     
     try:
         last = df_feat.iloc[-1]
     except (IndexError, AttributeError):
-        print(f"   ⚠️ {symbol}: error al obtener última fila")
         return None, 0.0, 0.0
     
     # Extraer valores
@@ -28,7 +25,7 @@ def generate_signal(symbol, df):
     close = last.get('close', 0)
     returns_5 = last.get('returns_5', 0)
     
-    # Calcular score técnico
+    # Score técnico
     if ema_50 == 0 or ema_200 == 0:
         trend_bull = False
     else:
@@ -51,9 +48,11 @@ def generate_signal(symbol, df):
     adjusted_prob = min(0.95, max(0.05, adjusted_prob))
     final_score = (adjusted_prob * 0.7) + (tech_score * 0.3)
     
-    # LOGS para depuración (se verán en Railway)
+    # Log para depuración (se verá en Railway)
     print(f"   📊 {symbol}: tech={tech_score:.2f} | ml={ml_prob:.2f} | comb={combined_prob:.2f} | reg={regime_factor:.2f} | adj={adjusted_prob:.2f} | score={final_score:.2f}")
     
     if adjusted_prob < config.SIGNAL_MIN_PROBABILITY or final_score < config.SIGNAL_MIN_SCORE:
         return None, adjusted_prob, final_score
+    
+    print(f"   ✅ {symbol}: SEÑAL DE COMPRA! prob={adjusted_prob:.2f} score={final_score:.2f}")
     return 'buy', adjusted_prob, final_score
