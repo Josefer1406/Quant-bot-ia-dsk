@@ -43,7 +43,6 @@ if data['historial']:
     df_hist['pnl_pct'] = df_hist['pnl'] * 100
     st.dataframe(df_hist[['symbol', 'entry', 'exit', 'pnl_pct', 'reason']])
     
-    # Curva de equity
     equity = [data['capital_inicial']]
     for t in data['historial']:
         equity.append(t['capital'])
