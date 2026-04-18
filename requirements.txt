@@ -4,6 +4,7 @@ numpy
 scikit-learn
 xgboost
 joblib
+yfinance
 requests
 streamlit
 plotly
