@@ -7,10 +7,9 @@ def add_technical_features(df):
         return df
     df = df.copy()
     # Medias móviles
-    for period in [7, 14, 21, 50, 100, 200]:
+    for period in [7, 14, 21, 50]:
         if len(df) >= period:
             df[f'sma_{period}'] = df['close'].rolling(period).mean()
-            df[f'ema_{period}'] = df['close'].ewm(span=period, adjust=False).mean()
     # RSI
     delta = df['close'].diff()
     gain = delta.where(delta > 0, 0).rolling(14).mean()
@@ -29,8 +28,9 @@ def add_technical_features(df):
     df['bb_upper'] = df['bb_mid'] + 2 * bb_std
     df['bb_lower'] = df['bb_mid'] - 2 * bb_std
     df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['bb_mid']
-    df['bb_position'] = (df['close'] - df['bb_lower']) / (df['bb_upper'] - df['bb_lower'] + 1e-9)
-    # ATR
+    # ATR (simulado con high/low = close ± 0.1%)
+    df['high'] = df['close'] * 1.001
+    df['low'] = df['close'] * 0.999
     high_low = df['high'] - df['low']
     high_close = abs(df['high'] - df['close'].shift())
     low_close = abs(df['low'] - df['close'].shift())
@@ -39,21 +39,11 @@ def add_technical_features(df):
     # Retornos
     df['returns_1'] = df['close'].pct_change()
     df['returns_5'] = df['close'].pct_change(5)
-    df['returns_10'] = df['close'].pct_change(10)
-    # Volumen (simulado si no hay)
-    if 'volume' in df.columns and df['volume'].sum() > 0:
-        df['volume_sma'] = df['volume'].rolling(20).mean()
-        df['volume_ratio'] = df['volume'] / (df['volume_sma'] + 1e-9)
-    else:
-        df['volume_ratio'] = 1.0
+    # Volumen simulado (constante)
+    df['volume_ratio'] = 1.0
     # Volatilidad
     df['volatility'] = df['returns_1'].rolling(20).std()
-    # Precio relativo a medias
-    for period in [21, 50, 200]:
-        df[f'price_vs_sma_{period}'] = (df['close'] - df[f'sma_{period}']) / df[f'sma_{period}']
-    # Pendiente de SMA21
-    df['sma_slope'] = df['sma_21'].diff(5) / df['sma_21'].shift(5)
-    # ADX (simplificado)
+    # ADX simplificado
     plus_dm = df['high'].diff()
     minus_dm = df['low'].diff()
     plus_dm = plus_dm.where(plus_dm > 0, 0)
@@ -63,9 +53,9 @@ def add_technical_features(df):
     minus_di = 100 * minus_dm.rolling(14).mean() / tr
     dx = 100 * abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)
     df['adx'] = dx.rolling(14).mean()
-    # Retorno acumulado
-    df['cum_return'] = (1 + df['returns_1']).cumprod() - 1
+    # Precio relativo a SMA21
+    df['price_vs_sma_21'] = (df['close'] - df['sma_21']) / df['sma_21']
     return df.dropna()
 
 def get_feature_columns():
-    return ['rsi', 'macd_diff', 'bb_width', 'volume_ratio', 'adx', 'volatility', 'price_vs_sma_21', 'sma_slope']
+    return ['rsi', 'macd_diff', 'bb_width', 'volume_ratio', 'adx', 'volatility', 'price_vs_sma_21']
