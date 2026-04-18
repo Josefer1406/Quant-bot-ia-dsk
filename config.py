@@ -1,5 +1,5 @@
 # ============================================
-# BOT QUANT INSTITUCIONAL - YAHOO FINANCE
+# CONFIGURACIÓN PARA PRUEBAS (UMBRALES BAJOS)
 # ============================================
 
 SIMULATION_MODE = True
@@ -13,7 +13,6 @@ TIMEFRAME = "5m"
 CYCLE_SECONDS = 60
 HISTORY_LIMIT = 100
 
-# Símbolos de Yahoo Finance (criptomonedas)
 UNIVERSE = [
     "BTC-USD", "ETH-USD", "SOL-USD", "ADA-USD", "DOGE-USD"
 ]
@@ -25,7 +24,6 @@ SYMBOL_MAP = {
     "DOGE-USD": "DOGE/USDT"
 }
 
-# Parámetros técnicos
 ADX_PERIOD = 14
 TREND_STRENGTH_THRESHOLD = 25
 
@@ -53,8 +51,9 @@ CORRELATION_GROUPS = {
     "MEME": ["DOGE-USD"],
 }
 
-SIGNAL_MIN_PROBABILITY = 0.65
-SIGNAL_MIN_SCORE = 0.70
+# ========== UMBRALES BAJOS PARA FORZAR SEÑALES ==========
+SIGNAL_MIN_PROBABILITY = 0.40   # antes 0.65
+SIGNAL_MIN_SCORE = 0.45         # antes 0.70
 
 MODEL_PATH = "xgboost_model.pkl"
 SCALER_PATH = "scaler.pkl"
