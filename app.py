@@ -88,12 +88,30 @@ def bot_loop():
 
 @app.route('/data')
 def data():
+    # Estadísticas adicionales
+    total_trades = len(portfolio.trades_history)
+    winning_trades = [t for t in portfolio.trades_history if t['pnl'] > 0]
+    losing_trades = [t for t in portfolio.trades_history if t['pnl'] <= 0]
+    total_pnl = sum(t['pnl'] for t in portfolio.trades_history)
+    avg_win = sum(t['pnl'] for t in winning_trades) / len(winning_trades) if winning_trades else 0
+    avg_loss = sum(t['pnl'] for t in losing_trades) / len(losing_trades) if losing_trades else 0
+    best_trade = max(winning_trades, key=lambda x: x['pnl'], default={'pnl': 0})['pnl']
+    worst_trade = min(losing_trades, key=lambda x: x['pnl'], default={'pnl': 0})['pnl']
+    
     return jsonify({
         'capital': portfolio.capital,
         'capital_inicial': portfolio.capital_initial,
         'pnl': portfolio.capital - portfolio.capital_initial,
+        'pnl_pct': ((portfolio.capital - portfolio.capital_initial) / portfolio.capital_initial) * 100,
         'posiciones': portfolio.positions,
-        'historial': portfolio.trades_history[-50:]
+        'historial': portfolio.trades_history[-50:],
+        'total_trades': total_trades,
+        'winrate': (len(winning_trades) / total_trades * 100) if total_trades > 0 else 0,
+        'avg_win_pct': avg_win * 100,
+        'avg_loss_pct': avg_loss * 100,
+        'best_trade_pct': best_trade * 100,
+        'worst_trade_pct': worst_trade * 100,
+        'total_pnl_pct': total_pnl * 100
     })
 
 if __name__ == '__main__':
