@@ -1,30 +1,26 @@
 # ============================================
-# BOT QUANT INSTITUCIONAL - VERSIÓN COINGECKO OPTIMIZADA
+# BOT QUANT INSTITUCIONAL - COINCAP (SIN BLOQUEO)
 # ============================================
 
 SIMULATION_MODE = True
-DATA_SOURCE = "coingecko"
-
-COINGECKO_API_KEY = "CG-kLdtAHJWmg3w684oGEbZgQHJ"  # <--- REEMPLAZA CON TU CLAVE
+DATA_SOURCE = "coincap"
 
 CAPITAL_INICIAL = 1000
-MAX_POSICIONES = 3          # Reducido a 3 para menos operaciones
+MAX_POSICIONES = 3          # Reducido para menos operaciones
 MAX_CAPITAL_USO = 0.60
 
-TIMEFRAME = "5m"
-CYCLE_SECONDS = 60          # Aumentado a 60 segundos para respetar rate limit
-HISTORY_LIMIT = 100         # Solo 100 velas (suficiente para indicadores)
+TIMEFRAME = "m5"            # CoinCap: m5 = 5 minutos
+CYCLE_SECONDS = 90          # 90 segundos entre ciclos (conservador)
+HISTORY_LIMIT = 100
 
-# Reducimos el universo a 5 activos (menos peticiones)
+# Universo pequeño (3 activos) para pruebas
 UNIVERSE = [
-    "bitcoin", "ethereum", "solana", "cardano", "dogecoin"
+    "bitcoin", "ethereum", "solana"
 ]
 SYMBOL_MAP = {
     "bitcoin": "BTC/USDT",
     "ethereum": "ETH/USDT",
-    "solana": "SOL/USDT",
-    "cardano": "ADA/USDT",
-    "dogecoin": "DOGE/USDT"
+    "solana": "SOL/USDT"
 }
 
 # Resto de configuraciones igual...
@@ -56,8 +52,6 @@ MAX_VOLATILITY = 0.15
 CORRELATION_GROUPS = {
     "L1": ["bitcoin", "ethereum"],
     "L2": ["solana"],
-    "L3": ["cardano"],
-    "MEME": ["dogecoin"],
 }
 
 SIGNAL_MIN_PROBABILITY = 0.65
@@ -67,3 +61,6 @@ MODEL_PATH = "xgboost_model.pkl"
 SCALER_PATH = "scaler.pkl"
 TRADES_LOG = "trades.csv"
 PORTFOLIO_STATE = "portfolio_state.json"
+
+# No necesitas API key para CoinCap
+COINGECKO_API_KEY = ""
