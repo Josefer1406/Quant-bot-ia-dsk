@@ -10,7 +10,7 @@ MAX_POSICIONES = 3
 MAX_CAPITAL_USO = 0.60
 
 TIMEFRAME = "5m"
-CYCLE_SECONDS = 45               # 45 segundos (12 activos = ~16 peticiones/min)
+CYCLE_SECONDS = 45
 HISTORY_LIMIT = 100
 
 UNIVERSE = [
@@ -30,10 +30,10 @@ TREND_STRENGTH_THRESHOLD = 25
 ML_RETRAIN_EVERY_TRADES = 30
 ML_MIN_TRADES_FOR_TRAIN = 30
 
-# ========== RIESGO/RECOMPENSA ==========
+# ========== RIESGO/RECOMPENSA (CORREGIDO) ==========
 DEFAULT_ATR_PERIOD = 14
-DEFAULT_STOP_MULTIPLIER = 1.0
-DEFAULT_TAKE_MULTIPLIER = 10.0
+DEFAULT_STOP_MULTIPLIER = 1.0        # Stop loss = 1.0 × ATR
+DEFAULT_TAKE_MULTIPLIER = 10.0       # Take profit = 10.0 × ATR
 MAX_STOP_PERCENT = 0.02
 MIN_STOP_PERCENT = 0.005
 
@@ -49,12 +49,12 @@ COOLDOWN_MAX = 60
 COOLDOWN_MIN = 10
 
 CORRELATION_GROUPS = {
-    "L1": ["BTC-USD", "ETH-USD"],                    # Grandes capitalizaciones
-    "L2": ["SOL-USD", "AVAX-USD", "MATIC-USD"],      # Layer 1 alternativos
-    "L3": ["ADA-USD", "NEAR-USD", "SUI-USD"],        # Smart contracts / nuevos L1
-    "DEFI": ["LINK-USD", "UNI-USD"],                 # DeFi
-    "L4": ["DOT-USD"],                               # Interoperabilidad
-    "MEME": ["DOGE-USD"],                            # Meme coins
+    "L1": ["BTC-USD", "ETH-USD"],
+    "L2": ["SOL-USD", "AVAX-USD", "MATIC-USD"],
+    "L3": ["ADA-USD", "NEAR-USD", "SUI-USD"],
+    "DEFI": ["LINK-USD", "UNI-USD"],
+    "L4": ["DOT-USD"],
+    "MEME": ["DOGE-USD"],
 }
 
 SIGNAL_MIN_PROBABILITY = 0.55
