@@ -1,5 +1,5 @@
 # ============================================
-# CONFIGURACIÓN INSTITUCIONAL - VERSIÓN TAKE PROFIT GRANDE
+# CONFIGURACIÓN INSTITUCIONAL - 12 ACTIVOS (CICLO 45s)
 # ============================================
 
 SIMULATION_MODE = True
@@ -10,18 +10,18 @@ MAX_POSICIONES = 3
 MAX_CAPITAL_USO = 0.60
 
 TIMEFRAME = "5m"
-CYCLE_SECONDS = 60
+CYCLE_SECONDS = 45               # 45 segundos (12 activos = ~16 peticiones/min)
 HISTORY_LIMIT = 100
 
 UNIVERSE = [
-    "BTC-USD", "ETH-USD", "SOL-USD", "ADA-USD", "DOGE-USD"
+    "BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "ADA-USD", "NEAR-USD",
+    "LINK-USD", "UNI-USD", "DOT-USD", "MATIC-USD", "DOGE-USD", "SUI-USD"
 ]
 SYMBOL_MAP = {
-    "BTC-USD": "BTC/USDT",
-    "ETH-USD": "ETH/USDT",
-    "SOL-USD": "SOL/USDT",
-    "ADA-USD": "ADA/USDT",
-    "DOGE-USD": "DOGE/USDT"
+    "BTC-USD": "BTC/USDT", "ETH-USD": "ETH/USDT", "SOL-USD": "SOL/USDT",
+    "AVAX-USD": "AVAX/USDT", "ADA-USD": "ADA/USDT", "NEAR-USD": "NEAR/USDT",
+    "LINK-USD": "LINK/USDT", "UNI-USD": "UNI/USDT", "DOT-USD": "DOT/USDT",
+    "MATIC-USD": "MATIC/USDT", "DOGE-USD": "DOGE/USDT", "SUI-USD": "SUI/USDT"
 }
 
 ADX_PERIOD = 14
@@ -30,18 +30,16 @@ TREND_STRENGTH_THRESHOLD = 25
 ML_RETRAIN_EVERY_TRADES = 30
 ML_MIN_TRADES_FOR_TRAIN = 30
 
-# ========== RIESGO/RECOMPENSA (CORREGIDO) ==========
+# ========== RIESGO/RECOMPENSA ==========
 DEFAULT_ATR_PERIOD = 14
-DEFAULT_STOP_MULTIPLIER = 1.0        # Stop loss = 1.0 × ATR (más ajustado)
-DEFAULT_TAKE_MULTIPLIER = 10.0       # Take profit = 10.0 × ATR (muy grande)
-MAX_STOP_PERCENT = 0.02              # Stop máximo 2%
-MIN_STOP_PERCENT = 0.005             # Stop mínimo 0.5%
+DEFAULT_STOP_MULTIPLIER = 1.0
+DEFAULT_TAKE_MULTIPLIER = 10.0
+MAX_STOP_PERCENT = 0.02
+MIN_STOP_PERCENT = 0.005
 
-# Trailing stop más agresivo
-TRAILING_ACTIVATION = 0.01           # 1% de ganancia para activar
-TRAILING_GAP = 0.005                 # 0.5% de retroceso desde máximo
+TRAILING_ACTIVATION = 0.01
+TRAILING_GAP = 0.005
 
-# ========== GESTIÓN DE CAPITAL ==========
 KELLY_FRACTION = 0.25
 MAX_POSITION_SIZE_PCT = 0.15
 MIN_POSITION_SIZE_PCT = 0.03
@@ -51,13 +49,14 @@ COOLDOWN_MAX = 60
 COOLDOWN_MIN = 10
 
 CORRELATION_GROUPS = {
-    "L1": ["BTC-USD", "ETH-USD"],
-    "L2": ["SOL-USD"],
-    "L3": ["ADA-USD"],
-    "MEME": ["DOGE-USD"],
+    "L1": ["BTC-USD", "ETH-USD"],                    # Grandes capitalizaciones
+    "L2": ["SOL-USD", "AVAX-USD", "MATIC-USD"],      # Layer 1 alternativos
+    "L3": ["ADA-USD", "NEAR-USD", "SUI-USD"],        # Smart contracts / nuevos L1
+    "DEFI": ["LINK-USD", "UNI-USD"],                 # DeFi
+    "L4": ["DOT-USD"],                               # Interoperabilidad
+    "MEME": ["DOGE-USD"],                            # Meme coins
 }
 
-# ========== UMBRALES DE SEÑAL (moderados) ==========
 SIGNAL_MIN_PROBABILITY = 0.55
 SIGNAL_MIN_SCORE = 0.60
 
